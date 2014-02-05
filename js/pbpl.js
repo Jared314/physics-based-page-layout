@@ -11,9 +11,12 @@ var DEFAULT_MASS = 1,
 function getNodeParticle(getfn, node, selector, option1, option2){
 	if(selector === "false") return false;
 
-	//TODO: Lazy init targetnode particle group
 	var targetnode = getfn(selector)[0],
 		i = targetnode.contains(node) ? option1 : option2;
+
+	//TODO: Lazy init targetnode particle group
+	targetnode.pls = targetnode.pls || {};
+	targetnode.pls.particlegroup = targetnode.pls.particlegroup || [];
 
 	return targetnode.pls.particlegroup[i];
 }
