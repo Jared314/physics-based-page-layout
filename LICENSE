@@ -1,38 +1,3 @@
-#Physics Based Page Layout
-
-Physics based layout of HTML DOM elements, with a CSS-like DSL.
-
-##Features
-- Standard DOM nodes
-- CSS Selectors
-- CSS-like DSL
-
-##Live Demo
-
-[jared314.github.io/physics-based-page-layout/](http://jared314.github.io/physics-based-page-layout/)
-
-##How To Use
-
-Include the required script files:
-
-    <script type="text/javascript" src="js/physics.min.js"></script>
-    <script type="text/javascript" src="js/cssparser.js"></script>
-    <script type="text/javascript" src="js/pbpl.js"></script>
-
-Create the desired DOM nodes:
-
-    <div id="item1">Item 1</div>
-
-Attach the springs:
-
-    <style type="text/x-pbpl">
-    #item1 { spring: body; }
-    </style>
-
-Please note the value of the`type` attribute of the `style` tag.
-
-##License
-
 The MIT License (MIT)
 
 Copyright (c) 2014 Jared Lobberecht
