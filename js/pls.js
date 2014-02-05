@@ -79,9 +79,9 @@ function createParticleGroup(p){
 	};
 }
 
-function createNonPLSParticleGroup(particlesystem, el, $){
-	var w = $(el).width(),
-		h = $(el).height(),
+function createNonPLSParticleGroup(particlesystem, el, w, h){
+	var w = w || el.clientWidth,
+		h = h || el.clientHeight,
 		mass = 1;
 	
 	var body1 = particlesystem.makeParticle(mass, w/2, 0).makeFixed();
@@ -93,6 +93,7 @@ function createNonPLSParticleGroup(particlesystem, el, $){
   		particlegroup: [body1, body2, body3, body4]
   	};
 }
+
 
 function applyRuleList(particlesystem, rulelist, fns, getfn){
 
@@ -121,3 +122,65 @@ function applyRuleList(particlesystem, rulelist, fns, getfn){
 				dispatch(particlesystem, fns, nodes, item.declarations, getfn);
 			});
 }
+
+
+// function resetDocumentParticleGroup(ww, wh){
+// 	var pg = document.body.pls.particlegroup;
+  
+// 	pg[POS_TOP].x = ww/2;
+// 	pg[POS_TOP].y = 0;
+
+// 	pg[POS_RIGHT].x = ww;
+// 	pg[POS_RIGHT].y = wh/2;
+
+// 	pg[POS_BOTTOM].x = ww/2;
+// 	pg[POS_BOTTOM].y = wh;
+
+// 	pg[POS_LEFT].x = 0;
+// 	pg[POS_LEFT].y = wh/2;
+// }
+
+
+
+function updatefn(){
+  	var pg = document.getElementById('item1').pls.particlegroup;
+  	var t = pg[POS_TOP].position.y;
+  	var l = pg[POS_LEFT].position.x;
+  	var w = pg[POS_RIGHT].position.x - pg[POS_LEFT].position.x;
+  	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
+
+  	$('#item1').css({
+  		'top': t + 'px',
+  		'left': l + 'px',
+  		'width': w + 'px',
+  		'height': h + 'px'
+  	});
+}
+
+
+document.addEventListener('DOMContentLoaded', function(){
+  // var mass = 1;
+  // var strength = 0.75;
+  // var drag = 0.8;
+  // var rest = 70.71; // 50^2 + 50^2 = c^2
+	
+  var p = new Physics();
+  p.onUpdate(updatefn);
+  p.optimize(true);
+  p.setEquilibriumCriteria(true, false, false);
+  p.onEquilibrium(updatefn);
+
+  document.body.pls = createNonPLSParticleGroup(p, 
+                                                document,
+                                                $(document).width(),
+                                                $(document).height());
+
+  var pls = cssparser.parse($("style[type='text/x-pbpl']").text().trim());
+  applyRuleList(p, pls.rulelist, plsHandlers, function(selector){
+  	return Array.prototype.slice.call(document.querySelectorAll(selector));
+  });
+
+  // $(window).on('resize', function(){resetDocumentParticleGroup($(document).width(), $(document).height()); p.play(); });
+
+  p.play();	
+});
