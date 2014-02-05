@@ -41,15 +41,15 @@ var plsHandlers = {
 	}
 };
 
-function clearCSSPosition(selector){
-	$(selector).css({
-		position: "absolute",
-		left:0,
-		top:0,
-		margin:0,
-		padding:0,
-		height:0,
-		width:0
+function clearCSSPosition(getfn, selector){
+	getfn(selector).forEach(function(item){
+		item.style.position = "absolute";
+		item.style.left = 0;
+		item.style.top = 0;
+		item.style.margin = 0;
+		item.style.padding = 0;
+		item.style.width = 0;
+		item.style.height = 0;
 	});
 }
 
@@ -128,7 +128,7 @@ function applyRuleList(particlesystem, rulelist, fns, getfn){
 
 	rules.forEach(function(item){
 		//Remove selected elements from css layout
-		clearCSSPosition(item.selector);
+		clearCSSPosition(getfn, item.selector);
 
 		//Execute rulelists against the particlesystem
 		dispatch(particlesystem, fns, getfn(item.selector), item.declarations, getfn);
@@ -190,7 +190,10 @@ document.addEventListener('DOMContentLoaded', function(){
                                                 $(document).width(),
                                                 $(document).height());
 
-  var pls = cssparser.parse($("style[type='text/x-pbpl']").text().trim());
+  var styles = Array.prototype.slice.call(document.querySelectorAll("style[type='text/x-pbpl']"));
+  styles = styles.reduce(function(a, item){ return a + " " + item.innerText.trim(); }, "");
+
+  var pls = cssparser.parse(styles);
   applyRuleList(p, pls.rulelist, plsHandlers, function(selector){
   	return Array.prototype.slice.call(document.querySelectorAll(selector));
   });
