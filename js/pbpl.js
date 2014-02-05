@@ -9,7 +9,7 @@ var DEFAULT_MASS = 1,
 //TODO: look into nesting ParticleSystems
 
 function getNodeParticle(getfn, node, selector, option1, option2){
-	if(selector === "false") return false;
+	if(selector.toLowerCase() === "false") return false;
 
 	var targetnode = getfn(selector)[0],
 		i = targetnode.contains(node) ? option1 : option2;
@@ -69,7 +69,7 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 		ks.forEach(function(k){
 			if(!fns[k]) return;
 			var args = declarations[k].split(' ')
-									  .filter(function(x){ return x !== null && x !== ''; });
+									  .filter(function(x){ return x !== null && x.trim() !== ''; });
 			fns[k].apply(null, [particlesystem, node, pg, getfn].concat(args));
 		});
 	});
