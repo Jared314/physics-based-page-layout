@@ -152,34 +152,24 @@ function applyRuleList(particlesystem, rulelist, fns, getfn){
 // 	pg[POS_LEFT].y = wh/2;
 // }
 
-
+function updateDOMElement(id){
+	var el = document.getElementById(id);
+  	var pg = el.pls.particlegroup;
+  	var t = pg[POS_TOP].position.y;
+  	var l = pg[POS_LEFT].position.x;
+  	var w = pg[POS_RIGHT].position.x - pg[POS_LEFT].position.x;
+  	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
+	
+  	el.style.top = t + 'px';
+	el.style.left = l + 'px';
+  	el.style.width = w + 'px';
+  	el.style.height = h + 'px';
+}
 
 function updatefn(){
-  	var pg = document.getElementById('item1').pls.particlegroup;
-  	var t = pg[POS_TOP].position.y;
-  	var l = pg[POS_LEFT].position.x;
-  	var w = pg[POS_RIGHT].position.x - pg[POS_LEFT].position.x;
-  	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
-
-  	$('#item1').css({
-  		'top': t + 'px',
-  		'left': l + 'px',
-  		'width': w + 'px',
-  		'height': h + 'px'
-  	});
-
-  	var pg = document.getElementById('item2').pls.particlegroup;
-  	var t = pg[POS_TOP].position.y;
-  	var l = pg[POS_LEFT].position.x;
-  	var w = pg[POS_RIGHT].position.x - pg[POS_LEFT].position.x;
-  	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
-
-  	$('#item2').css({
-  		'top': t + 'px',
-  		'left': l + 'px',
-  		'width': w + 'px',
-  		'height': h + 'px'
-  	});
+	updateDOMElement('item1');
+	updateDOMElement('item2');
+	updateDOMElement('item3');
 }
 
 

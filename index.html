@@ -6,11 +6,13 @@
 <style type="text/css">
 	#item1 { background-color: blue; }
   #item2 { background-color: red; }
+  #item3 { background-color: green; }
 </style>
 
 <style type="text/x-pbpl">
 	#item1 { spring: body #item2 body body; }
-  #item2 { spring: body body body #item1; }
+  #item2 { spring: body #item3 body #item1; }
+  #item3 { spring: body body body #item2; }
 </style>
 
 </head>
@@ -18,6 +20,7 @@
 
 <div id="item1">&nbsp;</div>
 <div id="item2">&nbsp;</div>
+<div id="item3">&nbsp;</div>
 
 <script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="/js/physics.min.js"></script>
