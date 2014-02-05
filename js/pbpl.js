@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function(){
                                                 $(document).height());
 
   var styles = Array.prototype.slice.call(document.querySelectorAll("style[type='text/x-pbpl']"));
-  styles = styles.reduce(function(a, item){ return a + " " + item.innerText.trim(); }, "");
+  styles = styles.reduce(function(a, item){ return a + " " + item.textContent.trim(); }, "");
 
   var pls = cssparser.parse(styles);
   applyRuleList(p, pls.rulelist, plsHandlers, function(selector){
