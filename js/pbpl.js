@@ -9,6 +9,8 @@ var DEFAULT_MASS = 1,
 //TODO: look into nesting ParticleSystems
 
 function getNodeParticle(getfn, node, selector, option1, option2){
+	if(selector === "false") return false;
+
 	//TODO: Lazy init targetnode particle group
 	var targetnode = getfn(selector)[0],
 		i = targetnode.contains(node) ? option1 : option2;
@@ -18,9 +20,9 @@ function getNodeParticle(getfn, node, selector, option1, option2){
 
 var plsHandlers = {
 	'spring': function(particlesystem, node, particlegroup, getfn, top, right, bottom, left){
-		right = right || top;
-		bottom = bottom || top;
-		left = left || right;
+		if(right !== false) right = right || top;
+		if(bottom !== false) bottom = bottom || top;
+		if(left !== false) left = left || right;
 
 		var restlength = 0,
 			strength = 0.75;
@@ -32,12 +34,14 @@ var plsHandlers = {
 		var bottomp = getNodeParticle(getfn, node, bottom, POS_BOTTOM, POS_TOP);
 		var leftp = getNodeParticle(getfn, node, left, POS_LEFT, POS_RIGHT);
 
-		return [
-			particlesystem.makeSpring(particlegroup[POS_TOP], topp, strength, DEFAULT_DRAG, restlength),
-			particlesystem.makeSpring(particlegroup[POS_RIGHT], rightp, strength, DEFAULT_DRAG, restlength),
-			particlesystem.makeSpring(particlegroup[POS_BOTTOM], bottomp, strength, DEFAULT_DRAG, restlength),
-			particlesystem.makeSpring(particlegroup[POS_LEFT], leftp, strength, DEFAULT_DRAG, restlength)
-		];
+		var result = [false, false, false, false];
+
+		if(topp) result[0] = particlesystem.makeSpring(particlegroup[POS_TOP], topp, strength, DEFAULT_DRAG, restlength);
+		if(rightp) result[1] = particlesystem.makeSpring(particlegroup[POS_RIGHT], rightp, strength, DEFAULT_DRAG, restlength);
+		if(bottomp) result[2] = particlesystem.makeSpring(particlegroup[POS_BOTTOM], bottomp, strength, DEFAULT_DRAG, restlength);
+		if(leftp) result[3] = particlesystem.makeSpring(particlegroup[POS_LEFT], leftp, strength, DEFAULT_DRAG, restlength);		
+
+		return result;
 	}
 };
 
