@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Test 1</title>
+<title>Centering a Div</title>
 
 <style type="text/css">
-	#item1 { background-color: blue; }
-  #item2 { background-color: red; }
-  #item3 { background-color: green; }
+#item1 { background-color: blue; color: white; }
+#item2 { background-color: red; color: white; }
+#item3 { background-color: green; color: white; }
 </style>
 
 <style type="text/x-pbpl">
-	#item1 { spring: body false body body; }
-  #item2 { spring: body #item3 body #item1; }
-  #item3 { spring: body body body false; }
+#item1 { spring: body false body body; }
+#item2 {
+	spring-left: #item1 right;
+	spring-right: #item3 left;
+	spring-top: body;
+	spring-bottom: body;
+}
+#item3 { spring: body body body false; }
 </style>
 
 </head>
 <body>
 
-<div id="item1">&nbsp;</div>
-<div id="item2">&nbsp;</div>
-<div id="item3">&nbsp;</div>
+<div id="item1">Item 1</div>
+<div id="item2">Item 2</div>
+<div id="item3">Item 3</div>
 
 <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="js/physics.min.js"></script>

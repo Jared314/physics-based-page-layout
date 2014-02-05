@@ -1,5 +1,11 @@
-var DEFAULT_MASS = 1,
+(function($){
+'use strict';
+
+var VERSION = "0.0.1",
+	DEFAULT_MASS = 1,
 	DEFAULT_DRAG = 0.8,
+	DEFAULT_SPRING_STRENGTH = 0.75,
+	DEFAULT_SPRING_REST_LENGTH = 0,
 	POS_TOP = 0,
 	POS_RIGHT = 1,
 	POS_BOTTOM = 2,
@@ -8,29 +14,108 @@ var DEFAULT_MASS = 1,
 
 //TODO: look into nesting ParticleSystems
 
+function createBoxSpringGroup(particlesystem, particlegroup){
+	var restlength = DEFAULT_SPRING_REST_LENGTH,
+		strength = DEFAULT_SPRING_STRENGTH,
+		drag = DEFAULT_DRAG;
+
+	return [
+		particlesystem.makeSpring(particlegroup[0], particlegroup[1], strength, drag, restlength),
+		particlesystem.makeSpring(particlegroup[1], particlegroup[2], strength, drag, restlength),
+		particlesystem.makeSpring(particlegroup[2], particlegroup[3], strength, drag, restlength),
+		particlesystem.makeSpring(particlegroup[3], particlegroup[0], strength, drag, restlength)
+	];
+}
+
+function createParticleGroup(particlesystem, fixed, w, h){
+	var w = w || 0,
+		h = h || 0,
+		mass = DEFAULT_MASS;
+
+	var result = [
+		particlesystem.makeParticle(mass, w/2, 0),
+		particlesystem.makeParticle(mass, w, h/2),
+		particlesystem.makeParticle(mass, w/2, h),
+		particlesystem.makeParticle(mass, 0, h/2)
+	];
+
+	if(fixed){
+		result.forEach(function(item){ item.makeFixed(); });
+	}
+
+	return result;
+}
+
+function guaranteeNodeParticleGroup(particlesystem, node){
+	node.pls = node.pls || {};
+
+	if(!node.pls.particlegroup){
+		var w = node.clientWidth,
+			h = node.clientHeight,
+			fixed = false;
+
+		if(node === document.body){
+			//TODO: remove jQuery
+			w = $(document).width();
+			h = $(document).height();
+			fixed = true;
+		}
+
+		node.pls.particlegroup = createParticleGroup(particlesystem, fixed, w, h);
+	}
+	return node;
+}
+
+function getNode(particlesystem, selector){
+	return Array.prototype.slice.call(document.querySelectorAll(selector))
+		.map(function(item){ return guaranteeNodeParticleGroup(particlesystem, item); });
+}
+
 function getNodeParticle(getfn, node, selector, option1, option2){
 	if(selector.toLowerCase() === "false") return false;
 
 	var targetnode = getfn(selector)[0],
 		i = targetnode.contains(node) ? option1 : option2;
 
-	//TODO: Lazy init targetnode particle group
 	targetnode.pls = targetnode.pls || {};
 	targetnode.pls.particlegroup = targetnode.pls.particlegroup || [];
 
 	return targetnode.pls.particlegroup[i];
 }
 
-var plsHandlers = {
+var springSideHandler = function(particlesystem, node, particlegroup, getfn, side, target, targetside, strength, drag, restlength){
+	strength = strength || DEFAULT_SPRING_STRENGTH;
+	drag = drag || DEFAULT_DRAG;
+	restlength = restlength || DEFAULT_SPRING_REST_LENGTH;
+	targetside = targetside || side;
+
+	var defaultSides = {
+		'top': [POS_TOP, POS_BOTTOM],
+		'bottom': [POS_BOTTOM, POS_TOP],
+		'left': [POS_LEFT, POS_RIGHT],
+		'right': [POS_RIGHT, POS_LEFT]
+	};
+
+	var sideIndex = defaultSides[side.toLowerCase()][0];
+	var targetSideIndexes = defaultSides[targetside.toLowerCase()];
+
+	var basep = particlegroup[sideIndex];
+	var targetp = getNodeParticle(getfn, node, target, targetSideIndexes[0], targetSideIndexes[1]);
+	
+	return particlesystem.makeSpring(basep, targetp, strength, drag, restlength);
+};
+
+
+
+
+var declarationHandlers = {
 	'spring': function(particlesystem, node, particlegroup, getfn, top, right, bottom, left){
 		if(right !== false) right = right || top;
 		if(bottom !== false) bottom = bottom || top;
 		if(left !== false) left = left || right;
 
-		var restlength = 0,
-			strength = 0.75;
-
-		console.log('spring', top, right, bottom, left);
+		var restlength = DEFAULT_SPRING_REST_LENGTH,
+			strength = DEFAULT_SPRING_STRENGTH;
 
 		var topp = getNodeParticle(getfn, node, top, POS_TOP, POS_BOTTOM);
 		var rightp = getNodeParticle(getfn, node, right, POS_RIGHT, POS_LEFT);
@@ -45,6 +130,18 @@ var plsHandlers = {
 		if(leftp) result[3] = particlesystem.makeSpring(particlegroup[POS_LEFT], leftp, strength, DEFAULT_DRAG, restlength);		
 
 		return result;
+	},
+	'spring-top': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
+		return springSideHandler(particlesystem, node, particlegroup, getfn, 'top', target, targetside, strength, drag, restlength);
+	},
+	'spring-bottom': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
+		return springSideHandler(particlesystem, node, particlegroup, getfn, 'bottom', target, targetside, strength, drag, restlength);
+	},
+	'spring-left': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
+		return springSideHandler(particlesystem, node, particlegroup, getfn, 'left', target, targetside, strength, drag, restlength);
+	},
+	'spring-right': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
+		return springSideHandler(particlesystem, node, particlegroup, getfn, 'right', target, targetside, strength, drag, restlength);
 	}
 };
 
@@ -64,7 +161,12 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 	var ks = Object.keys(declarations);
 	
 	nodes.forEach(function(node){
-		var pg = node.pls.particlegroup || [];
+		var pg = node.pls.particlegroup;
+
+		//Generate node internal box springs
+		if(!node.pls.springgroup || node.pls.springgroup.length < 1) {
+			node.pls.springgroup = createBoxSpringGroup(particlesystem, pg);
+		}
 
 		ks.forEach(function(k){
 			if(!fns[k]) return;
@@ -75,63 +177,13 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 	});
 }
 
-function createParticleGroup(p){
-	var restlength = 0,
-		strength = 0.75;
-	var p1 = p.makeParticle(DEFAULT_MASS, 0, 0),
-		p2 = p.makeParticle(DEFAULT_MASS, 0, 0),
-		p3 = p.makeParticle(DEFAULT_MASS, 0, 0),
-		p4 = p.makeParticle(DEFAULT_MASS, 0, 0);
 
-	return {
-		particlegroup: [p1, p2, p3, p4],
-		springgroup: [
-			p.makeSpring(p1, p2, strength, DEFAULT_DRAG, restlength),
-  			p.makeSpring(p2, p3, strength, DEFAULT_DRAG, restlength),
-			p.makeSpring(p3, p4, strength, DEFAULT_DRAG, restlength),
-			p.makeSpring(p4, p1, strength, DEFAULT_DRAG, restlength)
-		]
-	};
-}
 
-function createNonPLSParticleGroup(particlesystem, el, w, h){
-	var w = w || el.clientWidth,
-		h = h || el.clientHeight,
-		mass = 1;
-	
-	var body1 = particlesystem.makeParticle(mass, w/2, 0).makeFixed();
-	var body2 = particlesystem.makeParticle(mass, w, h/2).makeFixed();
-	var body3 = particlesystem.makeParticle(mass, w/2, h).makeFixed();
-	var body4 = particlesystem.makeParticle(mass, 0, h/2).makeFixed();
 
-	return {
-  		particlegroup: [body1, body2, body3, body4]
-  	};
-}
 
 
 function applyRuleList(particlesystem, rulelist, fns, getfn){
 	var rules = rulelist.filter(function(item){ return item.type === "style"; });
-
-	//TODO: lazily generate particlegroups
-	// Pre-generate node particlegroups
-	rules.forEach(function(item){
-		getfn(item.selector).forEach(function(item){
-			var g = null;
-
-			item.pls = item.pls || {};
-			item.pls.particlegroup = item.pls.particlegroup || [];
-			
-			//Generate node particles and springs
-			if(item.pls.particlegroup.length < 1) {
-				g = createParticleGroup(particlesystem);
-				item.pls.particlegroup = g.particlegroup;
-				item.pls.springgroup = g.springgroup;
-			}
-
-			return item;
-		});				
-	});
 
 	rules.forEach(function(item){
 		//Remove selected elements from css layout
@@ -142,7 +194,7 @@ function applyRuleList(particlesystem, rulelist, fns, getfn){
 	});
 }
 
-
+//TODO: handle fixed particle movement
 // function resetDocumentParticleGroup(ww, wh){
 // 	var pg = document.body.pls.particlegroup;
   
@@ -174,6 +226,7 @@ function updateDOMElement(id){
 }
 
 function updatefn(){
+	// TODO: dynamically generate list of updated nodes
 	updateDOMElement('item1');
 	updateDOMElement('item2');
 	updateDOMElement('item3');
@@ -181,31 +234,23 @@ function updatefn(){
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  // var mass = 1;
-  // var strength = 0.75;
-  // var drag = 0.8;
-  // var rest = 70.71; // 50^2 + 50^2 = c^2
-	
   var p = new Physics();
   p.onUpdate(updatefn);
   p.optimize(true);
   p.setEquilibriumCriteria(true, false, false);
   p.onEquilibrium(updatefn);
 
-  document.body.pls = createNonPLSParticleGroup(p, 
-                                                document,
-                                                $(document).width(),
-                                                $(document).height());
-
+  // Parse PBPL style sheets
   var styles = Array.prototype.slice.call(document.querySelectorAll("style[type='text/x-pbpl']"));
   styles = styles.reduce(function(a, item){ return a + " " + item.textContent.trim(); }, "");
+  var rules = cssparser.parse(styles);
 
-  var pls = cssparser.parse(styles);
-  applyRuleList(p, pls.rulelist, plsHandlers, function(selector){
-  	return Array.prototype.slice.call(document.querySelectorAll(selector));
-  });
+  // Apply PBPL style sheets
+  applyRuleList(p, rules.rulelist, declarationHandlers, function(selector){ return getNode(p, selector); });
 
   // $(window).on('resize', function(){resetDocumentParticleGroup($(document).width(), $(document).height()); p.play(); });
 
   p.play();	
 });
+
+}($));
