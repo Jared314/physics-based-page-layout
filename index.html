@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Test 1</title>
+
+<style type="text/css">
+	#item1 {
+		background-color: blue;
+		width: 100px;
+		height: 100px;
+		left: 100px;
+		top: 100px;
+	}
+</style>
+
+<!-- Physics Layout Sheets -->
+<style type="text/x-pls">
+	#item1 {
+		spring: body;
+	}
+</style>
+
+</head>
+<body>
+
+<div id="item1">&nbsp;</div>
+
+<script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="/js/physics.min.js"></script>
+<script type="text/javascript" src="/js/cssparser.js"></script>
+<script type="text/javascript" src="/js/pls.js"></script>
+<script type="text/javascript">
+'use strict';
+
+// function resetDocumentParticleGroup(ww, wh){
+// 	var pg = document.body.pls.particlegroup;
+  
+// 	pg[POS_TOP].x = ww/2;
+// 	pg[POS_TOP].y = 0;
+
+// 	pg[POS_RIGHT].x = ww;
+// 	pg[POS_RIGHT].y = wh/2;
+
+// 	pg[POS_BOTTOM].x = ww/2;
+// 	pg[POS_BOTTOM].y = wh;
+
+// 	pg[POS_LEFT].x = 0;
+// 	pg[POS_LEFT].y = wh/2;
+// }
+
+function updatefn(){
+  	var pg = document.getElementById('item1').pls.particlegroup;
+  	var t = pg[0].position.y;
+  	var l = pg[3].position.x;
+  	var w = pg[1].position.x - pg[3].position.x;
+  	var h = pg[2].position.y - pg[0].position.y;
+
+  	$('#item1').css({
+  		'top': t + 'px',
+  		'left': l + 'px',
+  		'width': w + 'px',
+  		'height': h + 'px'
+  	});
+}
+
+$(function() {
+  var mass = 1;
+  // var strength = 0.75;
+  // var drag = 0.8;
+  // var rest = 70.71; // 50^2 + 50^2 = c^2
+	
+  var p = new Physics();
+  p.onUpdate(updatefn);
+  p.optimize(true);
+  p.setEquilibriumCriteria(true, false, false);
+  p.onEquilibrium(updatefn);
+
+  document.body.pls = createNonPLSParticleGroup(p, document, $);
+
+  var pls = cssparser.parse($("style[type='text/x-pls']").text().trim());
+  applyRuleList(p, pls.rulelist, plsHandlers, function(selector){
+  	return Array.prototype.slice.call(document.querySelectorAll(selector));
+  });
+
+  // $(window).on('resize', function(){resetDocumentParticleGroup($(document).width(), $(document).height()); p.play(); });
+
+  p.play();
+});
+</script>
+</body>
+</html>
