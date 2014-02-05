@@ -1,4 +1,4 @@
-(function($){
+(function(cssparser, Physics){
 'use strict';
 
 var VERSION = "0.0.1",
@@ -55,9 +55,8 @@ function guaranteeNodeParticleGroup(particlesystem, node){
 			fixed = false;
 
 		if(node === document.body){
-			//TODO: remove jQuery
-			w = $(document).width();
-			h = $(document).height();
+			w = document.documentElement.clientWidth;
+			h = document.documentElement.clientHeight;
 			fixed = true;
 		}
 
@@ -253,4 +252,4 @@ document.addEventListener('DOMContentLoaded', function(){
   p.play();	
 });
 
-}($));
+}(cssparser, Physics));
