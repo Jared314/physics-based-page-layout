@@ -8,8 +8,16 @@ var DEFAULT_MASS = 1,
 
 //TODO: look into nesting ParticleSystems
 
+function getNodeParticle(getfn, node, selector, option1, option2){
+	//TODO: Lazy init targetnode particle group
+	var targetnode = getfn(selector)[0],
+		i = targetnode.contains(node) ? option1 : option2;
+
+	return targetnode.pls.particlegroup[i];
+}
+
 var plsHandlers = {
-	'spring': function(particlesystem, particlegroup, getfn, top, right, bottom, left){
+	'spring': function(particlesystem, node, particlegroup, getfn, top, right, bottom, left){
 		right = right || top;
 		bottom = bottom || top;
 		left = left || right;
@@ -18,11 +26,11 @@ var plsHandlers = {
 			strength = 0.75;
 
 		console.log('spring', top, right, bottom, left);
-		
-		var topp = getfn(top)[0].pls.particlegroup[POS_TOP];
-		var rightp = getfn(right)[0].pls.particlegroup[POS_RIGHT];
-		var bottomp = getfn(bottom)[0].pls.particlegroup[POS_BOTTOM];
-		var leftp = getfn(left)[0].pls.particlegroup[POS_LEFT];
+
+		var topp = getNodeParticle(getfn, node, top, POS_TOP, POS_BOTTOM);
+		var rightp = getNodeParticle(getfn, node, right, POS_RIGHT, POS_LEFT);
+		var bottomp = getNodeParticle(getfn, node, bottom, POS_BOTTOM, POS_TOP);
+		var leftp = getNodeParticle(getfn, node, left, POS_LEFT, POS_RIGHT);
 
 		return [
 			particlesystem.makeSpring(particlegroup[POS_TOP], topp, strength, DEFAULT_DRAG, restlength),
@@ -55,7 +63,7 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 			if(!fns[k]) return;
 			var args = declarations[k].split(' ')
 									  .filter(function(x){ return x !== null && x !== ''; });
-			fns[k].apply(null, [particlesystem, pg, getfn].concat(args));
+			fns[k].apply(null, [particlesystem, node, pg, getfn].concat(args));
 		});
 	});
 }
@@ -96,31 +104,35 @@ function createNonPLSParticleGroup(particlesystem, el, w, h){
 
 
 function applyRuleList(particlesystem, rulelist, fns, getfn){
+	var rules = rulelist.filter(function(item){ return item.type === "style"; });
 
-	rulelist.filter(function(item){ return item.type === "style"; })
-			.forEach(function(item){
-				//Remove selected elements from css layout
-				clearCSSPosition(item.selector);
+	//TODO: lazily generate particlegroups
+	// Pre-generate node particlegroups
+	rules.forEach(function(item){
+		getfn(item.selector).forEach(function(item){
+			var g = null;
 
-				var nodes = getfn(item.selector).map(function(item){
-					var g = null;
+			item.pls = item.pls || {};
+			item.pls.particlegroup = item.pls.particlegroup || [];
+			
+			//Generate node particles and springs
+			if(item.pls.particlegroup.length < 1) {
+				g = createParticleGroup(particlesystem);
+				item.pls.particlegroup = g.particlegroup;
+				item.pls.springgroup = g.springgroup;
+			}
 
-					item.pls = item.pls || {};
-					item.pls.particlegroup = item.pls.particlegroup || [];
-					
-					//Generate node particles and springs
-					if(item.pls.particlegroup.length < 1) {
-						g = createParticleGroup(particlesystem);
-						item.pls.particlegroup = g.particlegroup;
-						item.pls.springgroup = g.springgroup;
-					}
+			return item;
+		});				
+	});
 
-					return item;
-				});
+	rules.forEach(function(item){
+		//Remove selected elements from css layout
+		clearCSSPosition(item.selector);
 
-				//Execute rulelists against the particlesystem
-				dispatch(particlesystem, fns, nodes, item.declarations, getfn);
-			});
+		//Execute rulelists against the particlesystem
+		dispatch(particlesystem, fns, getfn(item.selector), item.declarations, getfn);
+	});
 }
 
 
@@ -150,6 +162,19 @@ function updatefn(){
   	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
 
   	$('#item1').css({
+  		'top': t + 'px',
+  		'left': l + 'px',
+  		'width': w + 'px',
+  		'height': h + 'px'
+  	});
+
+  	var pg = document.getElementById('item2').pls.particlegroup;
+  	var t = pg[POS_TOP].position.y;
+  	var l = pg[POS_LEFT].position.x;
+  	var w = pg[POS_RIGHT].position.x - pg[POS_LEFT].position.x;
+  	var h = pg[POS_BOTTOM].position.y - pg[POS_TOP].position.y;
+
+  	$('#item2').css({
   		'top': t + 'px',
   		'left': l + 'px',
   		'width': w + 'px',

@@ -4,26 +4,20 @@
 <title>Test 1</title>
 
 <style type="text/css">
-	#item1 {
-		background-color: blue;
-		width: 100px;
-		height: 100px;
-		left: 100px;
-		top: 100px;
-	}
+	#item1 { background-color: blue; }
+  #item2 { background-color: red; }
 </style>
 
-<!-- Physics Layout Sheets -->
 <style type="text/x-pbpl">
-	#item1 {
-		spring: body;
-	}
+	#item1 { spring: body #item2 body body; }
+  #item2 { spring: body body body #item1; }
 </style>
 
 </head>
 <body>
 
 <div id="item1">&nbsp;</div>
+<div id="item2">&nbsp;</div>
 
 <script type="text/javascript" src="/js/jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="/js/physics.min.js"></script>
