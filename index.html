@@ -10,14 +10,22 @@
 </style>
 
 <style type="text/x-pbpl">
-#item1 { spring: body false body body; }
-#item2 {
-	spring-left: #item1 right;
-	spring-right: #item3 left;
-	spring-top: body;
-	spring-bottom: body;
+#item1 {
+	spring: left body;
+	spring: right #item2 left;
+	spring: top body;
+	spring: bottom body;	
 }
-#item3 { spring: body body body false; }
+#item2 {
+	spring: top body;
+	spring: bottom body;
+}
+#item3 {
+	spring: left #item2 right;
+	spring: right body;
+	spring: top body;
+	spring: bottom body;
+}
 </style>
 
 </head>

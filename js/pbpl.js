@@ -82,33 +82,29 @@ function getNodeParticle(getfn, node, selector, option1, option2){
 	return targetnode.pls.particlegroup[i];
 }
 
-var springSideHandler = function(particlesystem, node, particlegroup, getfn, side, target, targetside, strength, drag, restlength){
-	strength = strength || DEFAULT_SPRING_STRENGTH;
-	drag = drag || DEFAULT_DRAG;
-	restlength = restlength || DEFAULT_SPRING_REST_LENGTH;
-	targetside = targetside || side;
-
-	var defaultSides = {
-		'top': [POS_TOP, POS_BOTTOM],
-		'bottom': [POS_BOTTOM, POS_TOP],
-		'left': [POS_LEFT, POS_RIGHT],
-		'right': [POS_RIGHT, POS_LEFT]
-	};
-
-	var sideIndex = defaultSides[side.toLowerCase()][0];
-	var targetSideIndexes = defaultSides[targetside.toLowerCase()];
-
-	var basep = particlegroup[sideIndex];
-	var targetp = getNodeParticle(getfn, node, target, targetSideIndexes[0], targetSideIndexes[1]);
-	
-	return particlesystem.makeSpring(basep, targetp, strength, drag, restlength);
-};
-
-
-
-
 var declarationHandlers = {
-	'spring': function(particlesystem, node, particlegroup, getfn, top, right, bottom, left){
+	'spring': function(particlesystem, node, particlegroup, getfn, side, target, targetside, strength, drag, restlength){
+		strength = strength || DEFAULT_SPRING_STRENGTH;
+		drag = drag || DEFAULT_DRAG;
+		restlength = restlength || DEFAULT_SPRING_REST_LENGTH;
+		targetside = targetside || side;
+
+		var defaultSides = {
+			'top': POS_TOP,
+			'bottom': POS_BOTTOM,
+			'left': POS_LEFT,
+			'right': POS_RIGHT
+		};
+
+		var sideIndex = defaultSides[side.toLowerCase()];
+		var targetSideIndex = defaultSides[targetside.toLowerCase()];
+
+		var basep = particlegroup[sideIndex];
+		var targetp = getNodeParticle(getfn, node, target, targetSideIndex, targetSideIndex);
+		
+		return particlesystem.makeSpring(basep, targetp, strength, drag, restlength);
+	},
+	'spring-group': function(particlesystem, node, particlegroup, getfn, top, right, bottom, left){
 		if(right !== false) right = right || top;
 		if(bottom !== false) bottom = bottom || top;
 		if(left !== false) left = left || right;
@@ -129,19 +125,7 @@ var declarationHandlers = {
 		if(leftp) result[3] = particlesystem.makeSpring(particlegroup[POS_LEFT], leftp, strength, DEFAULT_DRAG, restlength);		
 
 		return result;
-	},
-	'spring-top': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
-		return springSideHandler(particlesystem, node, particlegroup, getfn, 'top', target, targetside, strength, drag, restlength);
-	},
-	'spring-bottom': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
-		return springSideHandler(particlesystem, node, particlegroup, getfn, 'bottom', target, targetside, strength, drag, restlength);
-	},
-	'spring-left': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
-		return springSideHandler(particlesystem, node, particlegroup, getfn, 'left', target, targetside, strength, drag, restlength);
-	},
-	'spring-right': function(particlesystem, node, particlegroup, getfn, target, targetside, strength, drag, restlength){
-		return springSideHandler(particlesystem, node, particlegroup, getfn, 'right', target, targetside, strength, drag, restlength);
-	}
+	},	
 };
 
 function clearCSSPosition(getfn, selector){
