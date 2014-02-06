@@ -26,7 +26,12 @@ Create the desired DOM nodes:
 Attach the springs:
 
     <style type="text/x-pbpl">
-    #item1 { spring: body; }
+    #item1 {
+      spring: top body;
+      spring: bottom body;
+      spring: left body;
+      spring: right body;
+    }
     </style>
 
 Please note the value of the`type` attribute of the `style` tag.
