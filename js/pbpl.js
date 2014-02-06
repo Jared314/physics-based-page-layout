@@ -158,7 +158,11 @@ function clearCSSPosition(getfn, selector){
 
 function dispatch(particlesystem, fns, nodes, declarations, getfn){
 	var ks = Object.keys(declarations);
-	
+	var handler = function(k, node, pg, d){
+		var args = d.split(' ').filter(function(x){ return x !== null && x.trim() !== ''; });
+		fns[k].apply(null, [particlesystem, node, pg, getfn].concat(args));
+	};
+
 	nodes.forEach(function(node){
 		var pg = node.pls.particlegroup;
 
@@ -169,9 +173,13 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 
 		ks.forEach(function(k){
 			if(!fns[k]) return;
-			var args = declarations[k].split(' ')
-									  .filter(function(x){ return x !== null && x.trim() !== ''; });
-			fns[k].apply(null, [particlesystem, node, pg, getfn].concat(args));
+			var khandler = function(d){ handler(k, node, pg, d); };
+			
+			if(Array.isArray(declarations[k])){
+				declarations[k].forEach(khandler);	
+			} else {
+				khandler(declarations[k]);
+			}
 		});
 	});
 }
