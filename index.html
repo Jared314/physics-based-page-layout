@@ -2,8 +2,26 @@
 <html>
 <head>
 <title>Centering a Div</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Physics-based Page Layout - The complete guide to centering a div</title>
+<meta name="description" content="The complete guide to centering a div.">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400|Merriweather:300" rel="stylesheet">
+<link href="http://fonts.googleapis.com/css?family=Merriweather:300,300italic" rel="stylesheet" type="text/css">
 
 <style type="text/css">
+body { font-family: Merriweather, serif; background-color: #fff; }
+#header { width:80%; margin-left: auto; margin-right: auto; margin-top:20px;}
+#header-img { text-align: center; }
+code { background-color: #f7f7f7; border: 1px solid #DEDEDE; padding-left: 2px; padding-right: 2px;}
+h1 {
+	font-family: 'Open Sans', sans-serif;
+	font-size:20px;
+	text-transform: uppercase;
+	color:#333;
+	text-align: center;
+}
+
 #item1 { background-color: blue; color: white; }
 #item2 { background-color: red; color: white; }
 #item3 { background-color: green; color: white; }
@@ -13,23 +31,31 @@
 #item1 {
 	spring: left body;
 	spring: right #item2 left;
-	spring: top body;
-	spring: bottom body;	
+	spring: top #header bottom;
+	spring: bottom body;
 }
 #item2 {
-	spring: top body;
+	spring: top #header bottom;
 	spring: bottom body;
 }
 #item3 {
 	spring: left #item2 right;
 	spring: right body;
-	spring: top body;
+	spring: top #header bottom;
 	spring: bottom body;
 }
 </style>
 
 </head>
 <body>
+<div id="header">
+<div id="header-img"><img style="height:200px; width:200px;" src="img/dirigibleairship.png" /></div>
+<h1>Another Guide to Centering a Div</h1>
+<p>Centering a <code>div</code>, with CSS, has never been as obvious as you would expect. Centering text inside a <code>div</code> is straight forward with the <code>text-align</code> property, but then it starts to get tricky with internal boxes. When you want to vertically center a <code>div</code>, CSS, and some of its proponents, appear to stand directly against you.</p>
+
+<p>The aim of this page is to show how, by completely giving up on CSS for layouts, any div can be centered; horizontally and vertically. Just give up and use physics.</p>
+<!-- TODO: Cite http://www.tipue.com/blog/center-a-div/ -->
+</div>
 
 <div id="item1">Item 1</div>
 <div id="item2">Item 2</div>
