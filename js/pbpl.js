@@ -216,7 +216,11 @@ function updateDOMElement(id){
   	el.style.height = h + 'px';
 }
 
+var start = null;
+
 function updatefn(){
+	var done = Date.now();
+	console.log('Particle System Equilibrium Calculation Time:', done - start, 'ms');
 	// TODO: dynamically generate list of updated nodes
 	updateDOMElement('item1');
 	updateDOMElement('item2');
@@ -226,7 +230,6 @@ function updatefn(){
 
 document.addEventListener('DOMContentLoaded', function(){
   var p = new Physics();
-  p.onUpdate(updatefn);
   p.optimize(true);
   p.setEquilibriumCriteria(true, false, false);
   p.onEquilibrium(updatefn);
@@ -240,8 +243,8 @@ document.addEventListener('DOMContentLoaded', function(){
   applyRuleList(p, rules.rulelist, declarationHandlers, function(selector){ return getNode(p, selector); });
 
   // $(window).on('resize', function(){resetDocumentParticleGroup($(document).width(), $(document).height()); p.play(); });
-
-  p.play();	
+  start = Date.now();
+  p.play(1000);	
 });
 
 }(cssparser, Physics));
