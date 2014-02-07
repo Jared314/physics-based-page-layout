@@ -222,8 +222,8 @@ function updatefn(){
 	var done = Date.now();
 	// TODO: dynamically generate list of updated nodes
 	updateDOMElement('item1');
-	updateDOMElement('item2');
-	updateDOMElement('item3');
+	// updateDOMElement('item2');
+	// updateDOMElement('item3');
 	console.log('Particle System Equilibrium Calculation Time:', done - start, 'ms');
 }
 

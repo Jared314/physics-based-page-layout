@@ -23,23 +23,11 @@ h1 {
 }
 
 #item1 { background-color: blue; color: white; }
-#item2 { background-color: red; color: white; }
-#item3 { background-color: green; color: white; }
 </style>
 
 <style type="text/x-pbpl">
 #item1 {
 	spring: left body;
-	spring: right #item2 left;
-	spring: top #header bottom;
-	spring: bottom body;
-}
-#item2 {
-	spring: top #header bottom;
-	spring: bottom body;
-}
-#item3 {
-	spring: left #item2 right;
 	spring: right body;
 	spring: top #header bottom;
 	spring: bottom body;
@@ -49,17 +37,17 @@ h1 {
 </head>
 <body>
 <div id="header">
-<div id="header-img"><img style="height:200px; width:200px;" src="img/dirigibleairship.png" /></div>
-<h1>Another Guide to Centering a Div</h1>
-<p>Centering a <code>div</code>, with CSS, has never been as obvious as you would expect. Centering text inside a <code>div</code> is straight forward with the <code>text-align</code> property, but then it starts to get tricky with internal boxes. When you want to vertically center a <code>div</code>, CSS, and some of its proponents, appear to stand directly against you.</p>
+<div id="header-img"><img style="height:150px; width:150px;" src="img/dirigibleairship.png" /></div>
+<h1>Centering a Div with Physics, Instead of CSS</h1>
+<p>Layout with CSS has never been as obvious as you would expect. Centering text inside a <code>div</code> is straight forward with the <code>text-align</code> property, but it starts to get tricky with internal boxes and floating. When you want to vertically center items, CSS, and some of its proponents, appear to stand directly against you.</p>
 
-<p>The aim of this page is to show how, by completely giving up on CSS for layouts, any div can be centered; horizontally and vertically. Just give up and use physics.</p>
+<p>Now there is another option, Physics-based Page Layout. If you are trying to center with CSS, just give up and use physics.</p>
 <!-- TODO: Cite http://www.tipue.com/blog/center-a-div/ -->
 </div>
 
-<div id="item1">Item 1</div>
-<div id="item2">Item 2</div>
-<div id="item3">Item 3</div>
+<div id="item1">
+Item 1	
+</div>
 
 <script type="text/javascript" src="pbpl.min.js"></script>
 </body>
