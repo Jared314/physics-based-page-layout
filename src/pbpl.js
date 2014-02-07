@@ -1,4 +1,4 @@
-(function(cssparser, Physics){
+(function(cssparser, Physics, document){
 'use strict';
 
 var VERSION = "0.0.1",
@@ -125,7 +125,7 @@ var declarationHandlers = {
 		if(leftp) result[3] = particlesystem.makeSpring(particlegroup[POS_LEFT], leftp, strength, DEFAULT_DRAG, restlength);		
 
 		return result;
-	},	
+	}
 };
 
 function clearCSSPosition(getfn, selector){
@@ -247,4 +247,4 @@ document.addEventListener('DOMContentLoaded', function(){
   p.play(1000);	
 });
 
-}(cssparser, Physics));
+}(cssparser, Physics, document));
