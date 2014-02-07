@@ -13,11 +13,9 @@ Physics based layout of HTML DOM elements, with a CSS-like DSL.
 
 ##How To Use
 
-Include the required script files:
+Include the required script file:
 
-    <script type="text/javascript" src="js/physics.min.js"></script>
-    <script type="text/javascript" src="js/cssparser.js"></script>
-    <script type="text/javascript" src="js/pbpl.js"></script>
+    <script type="text/javascript" src="pbpl.min.js"></script>
 
 Create the desired DOM nodes:
 
