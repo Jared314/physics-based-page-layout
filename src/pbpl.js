@@ -11,8 +11,20 @@ var VERSION = "0.0.1",
 	POS_BOTTOM = 2,
 	POS_LEFT = 3;
 
-
 //TODO: look into nesting ParticleSystems
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function createBoxSpringGroup(particlesystem, particlegroup){
 	var restlength = DEFAULT_SPRING_REST_LENGTH,
@@ -128,8 +140,8 @@ var declarationHandlers = {
 	}
 };
 
-function clearCSSPosition(getfn, selector){
-	getfn(selector).forEach(function(item){
+function clearCSSPosition(nodes){
+	nodes.forEach(function(item){
 		item.style.position = "absolute";
 		item.style.left = 0;
 		item.style.top = 0;
@@ -137,10 +149,11 @@ function clearCSSPosition(getfn, selector){
 		item.style.padding = 0;
 		item.style.width = 0;
 		item.style.height = 0;
+		item.style.visibility = "hidden";
 	});
 }
 
-function dispatch(particlesystem, fns, nodes, declarations, getfn){
+function dispatch(particlesystem, fns, declarations, getfn, nodes){
 	var ks = Object.keys(declarations);
 	var handler = function(k, node, pg, d){
 		var args = d.split(' ').filter(function(x){ return x !== null && x.trim() !== ''; });
@@ -173,16 +186,23 @@ function dispatch(particlesystem, fns, nodes, declarations, getfn){
 
 
 
-function applyRuleList(particlesystem, rulelist, fns, getfn){
+function applyRuleList(particlesystem, fns, getfn, rulelist){
 	var rules = rulelist.filter(function(item){ return item.type === "style"; });
 
-	rules.forEach(function(item){
+	var ns = rules.map(function(item){
+		var nodes = getfn(item.selector);
+
 		//Remove selected elements from css layout
-		clearCSSPosition(getfn, item.selector);
+		clearCSSPosition(nodes);
 
 		//Execute rulelists against the particlesystem
-		dispatch(particlesystem, fns, getfn(item.selector), item.declarations, getfn);
+		dispatch(particlesystem, fns, item.declarations, getfn, nodes);
+
+		return nodes;
 	});
+	
+	var result = [];
+	return result.concat.apply(result, ns);
 }
 
 //TODO: handle fixed particle movement
@@ -203,7 +223,9 @@ function applyRuleList(particlesystem, rulelist, fns, getfn){
 // }
 
 function updateDOMElement(id){
-	var el = document.getElementById(id);
+	var el = (typeof id === "string") ? document.getElementById(id) : id;
+	if(!el.pls || !el.pls.particlegroup) return;
+
   	var pg = el.pls.particlegroup;
   	var t = pg[POS_TOP].position.y;
   	var l = pg[POS_LEFT].position.x;
@@ -214,25 +236,25 @@ function updateDOMElement(id){
 	el.style.left = l + 'px';
   	el.style.width = w + 'px';
   	el.style.height = h + 'px';
+  	el.style.visibility = 'inherit';
 }
 
-var start = null;
-
-function updatefn(){
-	var done = Date.now();
-	// TODO: dynamically generate list of updated nodes
-	updateDOMElement('item1');
-	// updateDOMElement('item2');
-	// updateDOMElement('item3');
-	console.log('Particle System Equilibrium Calculation Time:', done - start, 'ms');
-}
 
 
 document.addEventListener('DOMContentLoaded', function(){
-  var p = new Physics();
+  var start = Date.now(),
+  		  p = new Physics(),
+  		  updateTargetDOMElements = [];
+
   p.optimize(true);
   p.setEquilibriumCriteria(true, false, false);
-  p.onEquilibrium(updatefn);
+
+  p.onEquilibrium(function(){
+    var done = -1;
+    updateTargetDOMElements.forEach(updateDOMElement);
+    done = Date.now() - start;
+    console.log('Particle System Equilibrium Calculation Time:', done, 'ms');
+  });
 
   // Parse PBPL style sheets
   var styles = Array.prototype.slice.call(document.querySelectorAll("style[type='text/x-pbpl']"));
@@ -240,11 +262,13 @@ document.addEventListener('DOMContentLoaded', function(){
   var rules = cssparser.parse(styles);
 
   // Apply PBPL style sheets
-  applyRuleList(p, rules.rulelist, declarationHandlers, function(selector){ return getNode(p, selector); });
+  updateTargetDOMElements = applyRuleList(p, declarationHandlers, function(selector){
+  	return getNode(p, selector);
+  }, rules.rulelist);
 
   // $(window).on('resize', function(){resetDocumentParticleGroup($(document).width(), $(document).height()); p.play(); });
-  start = Date.now();
-  p.play(1000);	
+  
+  p.play(500);	
 });
 
 }(cssparser, Physics, document));
