@@ -10,8 +10,10 @@
 
 <style type="text/css">
 body { font-family: 'Merriweather', serif; background-color: #fff; }
+noscript > h1 { background-color: yellow;}
 #header { width:80%; margin-left: auto; margin-right: auto; margin-top:20px;}
 #header-img { text-align: center; }
+#header-img > img { height:150px; width:150px; }
 code { background-color: #f7f7f7; border: 1px solid #DEDEDE; padding-left: 2px; padding-right: 2px;}
 h1 {
 	font-family: 'Open Sans', sans-serif;
@@ -21,6 +23,7 @@ h1 {
 	text-align: center;
 }
 
+/* Demo Item */
 #item1 { background-color: blue; color: white; }
 </style>
 
@@ -35,18 +38,16 @@ h1 {
 
 </head>
 <body>
+<noscript><h1>This Demonstration Requires Javascript.</h1></noscript>
 <div id="header">
-<div id="header-img"><img style="height:150px; width:150px;" src="img/dirigibleairship.png" /></div>
+<div id="header-img"><img src="img/dirigibleairship.png" /></div>
 <h1>Centering a Div with Physics, Instead of CSS</h1>
 <p>Layout with CSS has never been as obvious as you would expect. Centering text inside a <code>div</code> is straight forward with the <code>text-align</code> property, but it starts to get tricky with internal boxes and floating. When you want to vertically center items, CSS, and some of its proponents, appear to stand directly against you.</p>
 
-<p>Now there is another option, Physics-based Page Layout. If you are trying to center with CSS, just give up and use physics.</p>
-<!-- TODO: Cite http://www.tipue.com/blog/center-a-div/ -->
+<p>Now there is another option, <a href="https://github.com/Jared314/physics-based-page-layout">Physics-based Page Layout</a> (<a href="https://github.com/Jared314/physics-based-page-layout">Github</a>, <a href="http://blog.lobberecht.com/2014/02/centering-div-tag-with-physics-instead.html">Blog</a>). If you are trying to center with CSS, just give up and use physics.</p>
 </div>
 
-<div id="item1">
-Item 1	
-</div>
+<div id="item1">Item 1</div>
 
 <script type="text/javascript" src="pbpl.min.js"></script>
 </body>
